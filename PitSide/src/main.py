@@ -1,6 +1,11 @@
+import sys
+
 import flet as ft
 
-from terminal_comp import TerminalComp
+if sys.platform == "win32":
+    from terminal.windows import TerminalComp
+else:
+    from terminal.posix import TerminalComp
 
 
 def main(page: ft.Page):
