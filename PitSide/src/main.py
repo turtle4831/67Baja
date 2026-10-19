@@ -4,6 +4,8 @@ import flet as ft
 
 from temp_bar.temp_sensor import TempatureSensor
 from temp_bar.widget import TempatureBarWidget
+from top_bar.battery_display import BatteryDisplay
+from top_bar.battery_sensor import BatterySensor
 
 if sys.platform == "win32":
     from terminal.windows import TerminalComp
@@ -19,6 +21,9 @@ def main(page: ft.Page):
     tempSensor = TempatureSensor(sensor_id=1)
     tempBarWidget = TempatureBarWidget()
     tempBarWidget.setup(sensor=tempSensor, min_temp=-10.0, max_temp=40.0)
+
+    batterySensor = BatterySensor()
+    batteryDisplay = BatteryDisplay(battery_sensor=batterySensor)
 
     page.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
     dash = ft.Container(
