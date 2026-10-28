@@ -1,0 +1,32 @@
+[project]
+name = "carros"
+version = "0.0.1"
+description = "Baja car ROS 2 sensor layer"
+readme = "README.md"
+requires-python = ">=3.10"
+# ponytail: rclpy comes from `source /opt/ros/lyrical/setup.bash`, not PyPI.
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.uv]
+package = false
+# ponytail: `uv venv --system-site-packages` so ROS apt deps import. uv sync reuses that env.
+
+[tool.pyright]
+# ponytail: Cursor/Pylance does not source ROS. extraPaths is analysis-only; runtime still needs `source /opt/ros/lyrical/setup.bash`.
+extraPaths = [
+    "/opt/ros/lyrical/lib/python3.14/site-packages",
+    "src/carros",
+]
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["src/carros/test"]
+pythonpath = ["src/carros"]
+# ponytail: ROS pytest11 entry points; we don't use launch tests.
+addopts = ["-p", "no:launch_testing", "-p", "no:launch_ros"]

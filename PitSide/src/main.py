@@ -6,6 +6,8 @@ from temp_bar.temp_sensor import TempatureSensor
 from temp_bar.widget import TempatureBarWidget
 from top_bar.battery_display import BatteryDisplay
 from top_bar.battery_sensor import BatterySensor
+from top_bar.connectivity_display import ConnectivityDisplay
+from top_bar.connectivity_sensor import ConnectivitySensor
 
 if sys.platform == "win32":
     from terminal.windows import TerminalComp
@@ -24,8 +26,24 @@ def main(page: ft.Page):
 
     batterySensor = BatterySensor()
     batteryDisplay = BatteryDisplay(battery_sensor=batterySensor)
+    connectivitySensor = ConnectivitySensor()
+    connectivityDisplay = ConnectivityDisplay(connectivity_sensor=connectivitySensor)
 
     page.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
+
+    top_bar = ft.Container(
+        alignment=ft.Alignment.CENTER,
+        content=ft.Column(
+            tight=True,
+            spacing=6,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                connectivityDisplay.getWidget(),
+                batteryDisplay.getWidget(),
+            ],
+        ),
+    )
+
     dash = ft.Container(
         expand=True,
         clip_behavior=ft.ClipBehavior.HARD_EDGE,
@@ -38,6 +56,7 @@ def main(page: ft.Page):
             ],
         ),
     )
+    page.add(top_bar)
     page.add(dash)
     page.add(TerminalComp())
 
