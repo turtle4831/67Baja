@@ -24,7 +24,6 @@ setup(
     entry_points={
         'console_scripts': [
             'dummy_sensor = carros.dummy_sensor:main',
-            'joy_servo = carros.joy_servo:main',
         ],
     },
 )

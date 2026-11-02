@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Push this workspace to the Pi, build, restart the boot service.
+# First time: ./deploy --setup
+set -euo pipefail
+
+HOST=${CARROS_PI:-ubuntu@10.42.0.70}
+ROOT=$(cd "$(dirname "$0")" && pwd)
+SETUP=0
+[[ ${1:-} == --setup ]] && SETUP=1
+
+rsync -az --delete \
+  --exclude .venv --exclude build --exclude install --exclude log --exclude bags \
+  --exclude .git --exclude __pycache__ --exclude .vscode \
+  "$ROOT/" "$HOST:CarROS/"
+
+if [[ $SETUP -eq 1 ]]; then
+  ssh "$HOST" 'bash ~/CarROS/scripts/setup-pi.sh'
+fi
+
+ssh "$HOST" 'bash -s' <<'EOF'
+set -euo pipefail
+cd "$HOME/CarROS"
+chmod +x scripts/start.sh scripts/setup-pi.sh
+set +u
+for d in lyrical jazzy humble; do
+  if [[ -f /opt/ros/$d/setup.bash ]]; then
+    # shellcheck source=/dev/null
+    source "/opt/ros/$d/setup.bash"
+    break
+  fi
+done
+set -u
+command -v colcon >/dev/null || { echo "ROS not installed. ./deploy --setup" >&2; exit 1; }
+colcon build --symlink-install
+if [[ -f /etc/systemd/system/carros.service ]]; then
+  sudo systemctl enable --now carros.service
+  sudo systemctl restart carros.service
+fi
+echo "deployed $(hostname)"
+set +u
+source install/setup.bash
+ros2 pkg executables carros || true
+EOF

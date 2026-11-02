@@ -2,8 +2,6 @@ build/
 install/
 log/
 bags/
-recordings/
-joy_servo.csv
 
 # Python
 __pycache__/

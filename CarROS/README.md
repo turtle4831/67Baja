@@ -10,31 +10,30 @@ Direct Ethernet (this PC is `10.42.0.1`). SSH username is **ubuntu**:
 ssh ubuntu@10.42.0.70
 ```
 
-Joystick is analog (GND, VCC, VRx, VRy, SW). **VRy cannot go on GP18** — that pin is digital, and 5V full-scale can damage it. Unplug VRy from the Pi GPIO.
+The Pi is Ubuntu 24.04, so it runs ROS 2 **Jazzy** (Lyrical has no Noble arm64 debs).
 
-The Pi 4 has no ADC. VRy goes to an **ADS1115** (I2C); servo stays on **GP17**. Power the stick from **3.3V**, not 5V, so VRy stays in range.
+### Deploy
 
-```
-Joystick GND -> Pi GND
-Joystick VCC -> Pi 3.3V
-Joystick VRy -> ADS1115 A0
-ADS1115 VDD  -> Pi 3.3V
-ADS1115 GND  -> Pi GND
-ADS1115 SDA  -> GP2 (pin 3)
-ADS1115 SCL  -> GP3 (pin 5)
-Servo signal -> GP17
-```
-
-The Pi has no ROS; copy the script and run it there (needs `python3-lgpio`, user in `dialout`):
+From `CarROS/` on this PC:
 
 ```bash
-scp src/carros/carros/joy_servo.py ubuntu@10.42.0.70:
-ssh ubuntu@10.42.0.70
-python3 joy_servo.py record --file joy.csv          # live follow; Ctrl+C to stop
-python3 joy_servo.py replay --file joy.csv
+./deploy --setup    # first time: rsync, install ROS 2 + systemd unit
+./deploy            # later: rsync + colcon build + restart carros.service
 ```
 
-`--seconds 10` records a fixed window instead of until Ctrl+C. Stick position maps to 1000–2000 µs on the servo.
+Override the target with `CARROS_PI` if the address changes:
+
+```bash
+CARROS_PI=ubuntu@10.42.0.70 ./deploy
+```
+
+On boot, `carros.service` runs `scripts/start.sh` → `ros2 launch carros sensors.launch.py record:=false`. On the Pi:
+
+```bash
+sudo systemctl status carros
+sudo systemctl restart carros
+journalctl -u carros -f
+```
 
 ## Setup
 
