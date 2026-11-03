@@ -2,6 +2,8 @@ import sys
 
 import flet as ft
 
+from minimap.gpsReciever import GpsReciever
+from minimap.minimapWidget import MinimapWidget
 from temp_bar.temp_sensor import TempatureSensor
 from temp_bar.widget import TempatureBarWidget
 from top_bar.battery_display import BatteryDisplay
@@ -29,6 +31,9 @@ def main(page: ft.Page):
     connectivitySensor = ConnectivitySensor()
     connectivityDisplay = ConnectivityDisplay(connectivity_sensor=connectivitySensor)
 
+    gps = GpsReciever()
+    minimap = MinimapWidget(gps_reciever=gps)
+
     page.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
 
     top_bar = ft.Container(
@@ -47,12 +52,19 @@ def main(page: ft.Page):
     dash = ft.Container(
         expand=True,
         clip_behavior=ft.ClipBehavior.HARD_EDGE,
-        content=ft.Column(
+        content=ft.Stack(
             expand=True,
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.END,
             controls=[
-                tempBarWidget.getWidget(),
+                ft.Container(
+                    expand=True,
+                    alignment=ft.Alignment.CENTER,
+                    content=minimap.getWidget(),
+                ),
+                ft.Container(
+                    expand=True,
+                    alignment=ft.Alignment.CENTER_RIGHT,
+                    content=tempBarWidget.getWidget(),
+                ),
             ],
         ),
     )
