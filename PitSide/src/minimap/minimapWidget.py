@@ -55,7 +55,7 @@ class MinimapWidget(ft.Container):
         self.running = False
         self._canvas = cv.Canvas(width=width, height=height, shapes=[]) # type: ignore
         super().__init__(
-            content=self._canvas,
+            content=self._canvas, # type: ignore
             width=width,
             height=height,
             bgcolor="#1a1a1a",

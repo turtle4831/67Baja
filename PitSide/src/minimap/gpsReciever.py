@@ -12,7 +12,7 @@ class GpsReciever:
         self._origin_lat = 32.7157
         self._origin_lon = -117.1611
         self._radius_deg = 0.001
-        self.gps_data = {"latitude": float("nan"), "longitude": float("nan")}
+        self.gps_data = {"latitude": None, "longitude": None}
 
     def read_gps_data(self):
         t = time.monotonic() - self._t0
@@ -31,10 +31,7 @@ class GpsReciever:
 def _self_check():
     gps = GpsReciever()
     gps._t0 = time.monotonic() - (math.pi / 2) / 0.35
-    cords = gps.get_coordinates()
-    if cords is None:
-        raise AssertionError("get_coordinates() returned None")
-    lat, lon = cords
+    lat, lon = gps.get_coordinates()
     assert abs(lat - (gps._origin_lat + gps._radius_deg)) < 1e-6
     assert abs(lon - gps._origin_lon) < 1e-6
 
